@@ -1,5 +1,7 @@
 #https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
+#Status: Funktioniert nicht im Moment!!!
+
 import pygame 
 pygame.init()
 screen_width = 1920
@@ -134,6 +136,7 @@ while running:
 
 
     pygame.display.flip()
+
 
 
 pygame.quit()       
