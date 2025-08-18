@@ -147,22 +147,23 @@ class Deko_Object:
         self.stage = 0
         self.coords = coords
         self.colour = starting_colour
-        self.rgb_speed = [2, 4, 6]
+        self.rgb_speed = [15, 20, 12]
+        self.animation_speed = 20
 
     def do_object(self):
         if self.name == "rainbowcircle":
             self.get_rainbow_color()
             pygame.draw.circle(screen, (self.colour[0], self.colour[1], self.colour[2]), self.coords, self.stage, 10)
-            self.stage += 1
+            self.stage += self.animation_speed
             
 
     def get_rainbow_color(self):
         for i in range(3):
             print(self.colour)
             self.colour[i] += self.rgb_speed[i]
-            if self.colour[i] > 245:
+            if self.colour[i] > 234:
                 self.rgb_speed[i] *= - 1
-            if self.colour[i] < 10: 
+            if self.colour[i] < 21: 
                 self.rgb_speed[i] *= - 1
     
     def get_stage(self):
@@ -189,7 +190,7 @@ while running:
     
     screen.fill("black")
 
-    dekomanager.do_your_job(events, mouse_pos, [245, 10, 127])
+    dekomanager.do_your_job(events, mouse_pos, [230, 21, 127])
 
     board.blit_board()
     board.blit_pieces()
