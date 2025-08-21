@@ -36,6 +36,9 @@ class Chess_Board:
 
     def return_pos(self):
         return self.board_pos
+    
+    def return_board(self):
+        return self.board
 
     def blit_board(self):
         screen.blit(self.board_img, (self.board_pos[0], self.board_pos[1]))
@@ -45,8 +48,7 @@ class Chess_Board:
             for piece in row:
                 if piece != 0:
                     piece.blit_piece()
-
-        
+    
     def get_opponent_colour(self):
         colour = "white"
         return colour
@@ -93,14 +95,41 @@ class Chess_Board:
                     board[y][x] = Piece(name, relative_pos)
         return board
 
+    def show_moves(self, events, mouse_pos):
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
+                if mouse_relative_pos[0] >= 0 and mouse_relative_pos[0] <= 8:
+                    if mouse_relative_pos[1] >= 0 and mouse_relative_pos[1] <= 8:
+                        moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
+                for i in moves:
+                    possible_move_indicator = dekomanager.return_possible_move_indicator()
+                    position = self.calculate_actual_pos(moves[i])
+                    screen.blit(possible_move_indicator, (position[0], position[1]))
+
+
+    def get_relative_mouse_pos(self, mouse_pos):
+        mouse_pos[0] -= self.board_pos[0]
+        mouse_pos[1] -= self.board_pos[1]
+        mouse_pos[0] /= scale_factor
+        mouse_pos[1] /= scale_factor
+        return mouse_pos
+ 
+    def calculate_actual_pos(self, position):
+        position = position
+        position[0], position[1] = self.board_pos[0] + (position[0] * tile_size), self.board_pos[1] + (position[1] * tile_size) 
+        return position
+    
+
 class Piece:
     
     def __init__(self, name, relative_pos):
         
+        self.name = name
         self.piece_img = pygame.image.load(name + ".png")
         self.piece_img = pygame.transform.scale(self.piece_img, (piece_size * scale_factor, piece_size * scale_factor))
      
-        self.pos = relative_pos
+        self.relative_pos = relative_pos
         self.pos = self.calculate_actual_pos()
     
     def blit_piece(self):
@@ -113,16 +142,69 @@ class Piece:
 
     def calculate_actual_pos(self):
         board_pos = self.get_board_coords()
-        print(self.pos)
-        print(board_pos)
-        self.pos[0], self.pos[1] = board_pos[0] + (self.pos[0] * tile_size), board_pos[1] + (self.pos[1] * tile_size) 
- 
-        print(self.pos)
-        return self.pos
+        position = self.relative_pos
+        position[0], position[1] = board_pos[0] + (position[0] * tile_size), board_pos[1] + (position[1] * tile_size) 
+        return position
+    
+    def get_possible_moves(self):
+        moves = set()
+        board = board.return_board()
+        x = self.relative_pos[1]
+        y = self.relative_pos[0]
+
+        if self.name == "w_rook" or self.name == "b_rook":
+            up = True
+            left = True
+            right = True
+            down = True
+            for i in range(1, 8):
+                if up:
+                    if board[y + i] == "0": #Lehres Feld
+                        moves.add([y + i, x])
+                    elif board[y + i][x][0] == self.name[0]: #Wenn die Figuren den gleichen Anfangsbuchstaben haben
+                        up = False  # dann haben sie halt die gleiche Farbe
+                    else:
+                        moves.add([y + i, x])#im letzen Fall schlägt man eine Figur
+                        up = False
+            for i in range(1, 8):
+                if left:
+                    if board[x - i] == "0":
+                        moves.add([y, x - i])
+                    elif board[y][x - i][0] == self.name[0]: 
+                        up = False 
+                    else:
+                        moves.add([y, x - i])
+                        up = False            
+            for i in range(1, 8):
+                if down:
+                    if board[y - i] == "0":
+                        moves.add([y - i, x])
+                    elif board[y - i][x][0] == self.name[0]: 
+                        up = False  
+                    else:
+                        moves.add([y - i, x])
+                        up = False
+            for i in range(1, 8):
+                if right:
+                    if board[x + i] == "0": 
+                        moves.add([y, x + i])
+                    elif board[y][x + i][0] == self.name[0]: 
+                        up = False  
+                    else:
+                        moves.add([y, x + i])
+                        up = False            
+            return(moves)
+                
     
 class Dekomanager:
     def __init__(self):
         self.active_objects = []
+
+        self.possible_move_indicator = pygame.image.load("Move_arrow.png")
+        self.possible_move_indicator = pygame.transform.scale(self.possible_move_indicator, (16 * scale_factor, 16 * scale_factor))       
+
+    def return_possible_move_indicator(self):
+        return self.possible_move_indicator
 
     def do_your_job(self, events, mouse_pos, starting_colour):
         self.check_if_new_decoobject(events, mouse_pos, starting_colour)
@@ -194,6 +276,7 @@ while running:
 
     board.blit_board()
     board.blit_pieces()
+    board.show_moves(events, mouse_pos)
 
 
     pygame.display.flip()
