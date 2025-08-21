@@ -1,5 +1,7 @@
 #https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
+#Status : Dios mio, no funciona
+
 import pygame 
 pygame.init()
 
@@ -285,3 +287,4 @@ while running:
         running = False
 
 pygame.quit()       
+
