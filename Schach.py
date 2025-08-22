@@ -101,12 +101,12 @@ class Chess_Board:
                 mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
 
                 moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
-                for i in moves:
+                for i in range(len(moves)):
                     yposition = moves[i][0]
                     xposition = moves[i][1]
                     possible_move_indicator = dekomanager.return_possible_move_indicator()
-                    position = self.calculate_actual_pos(yposition, xposition)
-                    screen.blit(possible_move_indicator, (position[0], position[1]))
+                    yposition, xposition = self.calculate_actual_pos(yposition, xposition)
+                    screen.blit(possible_move_indicator, (yposition, xposition))
 
 
     def get_relative_mouse_pos(self, mouse_pos_tuple):
@@ -121,7 +121,7 @@ class Chess_Board:
  
     def calculate_actual_pos(self, yposition, xposition):
         yposition, xposition = self.board_pos[0] + (yposition * tile_size), self.board_pos[1] + (xposition * tile_size) 
-        return position
+        return yposition, xposition
     
 
 class Piece:
