@@ -131,6 +131,7 @@ class Piece:
         self.name = name
         self.piece_img = pygame.image.load(name + ".png")
         self.piece_img = pygame.transform.scale(self.piece_img, (piece_size * scale_factor, piece_size * scale_factor))
+        self.colour = name[0]
     
         self.relative_pos = relative_pos
         self.pos = self.calculate_actual_pos()
@@ -138,7 +139,9 @@ class Piece:
     def blit_piece(self):
         screen.blit(self.piece_img, (self.pos[0], self.pos[1]))
 
-        
+    def return_name(self):
+        return str(self.name)  
+
     def get_board_coords(self):
         board_pos = board.return_pos() 
         return board_pos 
@@ -153,7 +156,7 @@ class Piece:
         return position
     
     def get_possible_moves(self):
-        moves = set()
+        moves = []
         local_board = board.return_board()
         x = int(self.relative_pos[1]) 
         y = int(self.relative_pos[0]) 
@@ -166,63 +169,93 @@ class Piece:
             down = True
             for i in range(1, 8):
                 if up:                    
-                    target_field = [y + i, x]
-                    existant = self.check_if_field_exists(target_field, local_board)
+                    target_field = [y - i, x]
+                    existant = self.check_if_field_exists(target_field)
                     if not existant:
                         up = False
                     empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
-                        moves.add([y + i, x])
+                        moves.append([y - i, x])
                     if not empty:
-                        colour = self.get_colour()
-                        if colour == "w":
+                        colour = self.get_colour(target_field)
+                        if colour == self.colour:
                             up = False
-                        if colour == "b": 
+                        if colour != self.colour: 
                             up = False
-                            moves.add([y + i, x])
-
+                            moves.append([y - i, x])
 
             for i in range(1, 8):
                 if left:
-                    if x - i < 0:
+                    target_field = [y, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
                         left = False
-                    elif local_board[x - i] == "0":
-                        moves.add([y, x - i])
-                    elif local_board[y][x - i][0] == self.name[0]: 
-                        up = False 
-                    else:
-                        moves.add([y, x - i])
-                        up = False            
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append([y, x - i])
+                    if not empty:
+                        colour = self.get_colour(target_field)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append([y, x - i])
+
             for i in range(1, 8):
-                if down:
-                    if local_board[y - i] == "0":
-                        moves.add([y - i, x])
-                    elif local_board[y - i][x][0] == self.name[0]: 
-                        up = False  
-                    else:
-                        moves.add([y - i, x])
-                        up = False
+                if down:    
+                    target_field = [y + i, x]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        down = False
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append([y + i, x])
+                    if not empty:
+                        colour = self.get_colour(target_field)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append([y + i, x])
+
             for i in range(1, 8):
                 if right:
-                    if local_board[x + i] == "0": 
-                        moves.add([y, x + i])
-                    elif local_board[y][x + i][0] == self.name[0]: 
-                        up = False  
-                    else:
-                        moves.add([y, x + i])
-                        up = False            
+                    target_field = [y, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        right = False
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append([y, x + i])
+                    if not empty:
+                        colour = self.get_colour(target_field)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append([y, x + i])
+
             return(moves)
 
-    def check_if_field_exists(self, field, local_board): 
-        if y + i > 8:
-            return False
+    def check_if_field_exists(self, field): 
+        if field[0] <= 7 and field[0] >= 0:
+            if field[1] <= 7 and field[1] >= 0:
+                return True
+        return False
+        
+    def check_if_field_empty(self, field, board):
+        y = field[0]
+        x = field[1]
+        if board[y][x] == "0":
+            return True
         else:
-            return True      
-    def check_if_field_empty(self, target_field, local_board):
+            return False
 
-    def get_colour(self):
-
-
+    def get_colour(self, field):
+        y = field[0]
+        x = field[1]
+        name = board[y][x].return_name()
+        return str(name[0])
 
 class Dekomanager:
     def __init__(self):
