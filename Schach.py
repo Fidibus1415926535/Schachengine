@@ -100,6 +100,7 @@ class Chess_Board:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
 
+                print(mouse_relative_pos)
                 moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
                 for i in moves:
                     possible_move_indicator = dekomanager.return_possible_move_indicator()
@@ -130,7 +131,7 @@ class Piece:
         self.name = name
         self.piece_img = pygame.image.load(name + ".png")
         self.piece_img = pygame.transform.scale(self.piece_img, (piece_size * scale_factor, piece_size * scale_factor))
-     
+    
         self.relative_pos = relative_pos
         self.pos = self.calculate_actual_pos()
     
@@ -144,15 +145,19 @@ class Piece:
 
     def calculate_actual_pos(self):
         board_pos = self.get_board_coords()
-        position = self.relative_pos
+        position = [0, 0]
+        position[0] = self.relative_pos[0]
+        position[1] = self.relative_pos[1]
         position[0], position[1] = board_pos[0] + (position[0] * tile_size), board_pos[1] + (position[1] * tile_size) 
+        print(self.relative_pos)
         return position
     
     def get_possible_moves(self):
         moves = set()
-        board = board.return_board()
-        x = self.relative_pos[1]
-        y = self.relative_pos[0]
+        local_board = board.return_board()
+        x = int(self.relative_pos[1]) 
+        y = int(self.relative_pos[0]) 
+        print(x, y)
 
         if self.name == "w_rook" or self.name == "b_rook":
             up = True
@@ -161,36 +166,40 @@ class Piece:
             down = True
             for i in range(1, 8):
                 if up:
-                    if board[y + i] == "0": #Lehres Feld
+                    if y + i > 8:
+                        up = False
+                    elif local_board[y + i] == "0": #Lehres Feld
                         moves.add([y + i, x])
-                    elif board[y + i][x][0] == self.name[0]: #Wenn die Figuren den gleichen Anfangsbuchstaben haben
+                    elif local_board[y + i][x][0] == self.name[0]: #Wenn die Figuren den gleichen Anfangsbuchstaben haben
                         up = False  # dann haben sie halt die gleiche Farbe
                     else:
                         moves.add([y + i, x])#im letzen Fall schlägt man eine Figur
                         up = False#und nun habe ich vergessen, dass die Figur so über den Rand ziehen wird glaube ich
             for i in range(1, 8):
                 if left:
-                    if board[x - i] == "0":
+                    if x - i < 0:
+                        left = False
+                    elif local_board[x - i] == "0":
                         moves.add([y, x - i])
-                    elif board[y][x - i][0] == self.name[0]: 
+                    elif local_board[y][x - i][0] == self.name[0]: 
                         up = False 
                     else:
                         moves.add([y, x - i])
                         up = False            
             for i in range(1, 8):
                 if down:
-                    if board[y - i] == "0":
+                    if local_board[y - i] == "0":
                         moves.add([y - i, x])
-                    elif board[y - i][x][0] == self.name[0]: 
+                    elif local_board[y - i][x][0] == self.name[0]: 
                         up = False  
                     else:
                         moves.add([y - i, x])
                         up = False
             for i in range(1, 8):
                 if right:
-                    if board[x + i] == "0": 
+                    if local_board[x + i] == "0": 
                         moves.add([y, x + i])
-                    elif board[y][x + i][0] == self.name[0]: 
+                    elif local_board[y][x + i][0] == self.name[0]: 
                         up = False  
                     else:
                         moves.add([y, x + i])
@@ -243,7 +252,6 @@ class Deko_Object:
 
     def get_rainbow_color(self):
         for i in range(3):
-            print(self.colour)
             self.colour[i] += self.rgb_speed[i]
             if self.colour[i] > 234:
                 self.rgb_speed[i] *= - 1
