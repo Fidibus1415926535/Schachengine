@@ -1,3 +1,4 @@
+#https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
 import pygame 
 pygame.init()
@@ -101,8 +102,10 @@ class Chess_Board:
 
                 moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
                 for i in moves:
+                    yposition = moves[i][0]
+                    xposition = moves[i][1]
                     possible_move_indicator = dekomanager.return_possible_move_indicator()
-                    position = self.calculate_actual_pos(moves[i])
+                    position = self.calculate_actual_pos(yposition, xposition)
                     screen.blit(possible_move_indicator, (position[0], position[1]))
 
 
@@ -116,9 +119,8 @@ class Chess_Board:
         mouse_pos[1] = int(mouse_pos[1] / (scale_factor * 16))
         return mouse_pos
  
-    def calculate_actual_pos(self, position):
-        position = position
-        position[0], position[1] = self.board_pos[0] + (position[0] * tile_size), self.board_pos[1] + (position[1] * tile_size) 
+    def calculate_actual_pos(self, yposition, xposition):
+        yposition, xposition = self.board_pos[0] + (yposition * tile_size), self.board_pos[1] + (xposition * tile_size) 
         return position
     
 
@@ -164,15 +166,17 @@ class Piece:
             right = True
             down = True
             for i in range(1, 8):
-                if up:                    
+                if up:  
+                    empty = True                  
                     target_field = [y - i, x]
                     existant = self.check_if_field_exists(target_field)
                     if not existant:
                         up = False
-                    empty = self.check_if_field_empty(target_field, local_board)
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
                         moves.append([y - i, x])
-                    if not empty:
+                    if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
@@ -182,14 +186,16 @@ class Piece:
 
             for i in range(1, 8):
                 if left:
+                    empty = True
                     target_field = [y, x - i]
                     existant = self.check_if_field_exists(target_field)
                     if not existant:
                         left = False
-                    empty = self.check_if_field_empty(target_field, local_board)
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
                         moves.append([y, x - i])
-                    if not empty:
+                    if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
@@ -198,15 +204,17 @@ class Piece:
                             moves.append([y, x - i])
 
             for i in range(1, 8):
-                if down:    
+                if down: 
+                    empty = True  
                     target_field = [y + i, x]
                     existant = self.check_if_field_exists(target_field)
                     if not existant:
                         down = False
-                    empty = self.check_if_field_empty(target_field, local_board)
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
                         moves.append([y + i, x])
-                    if not empty:
+                    if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
@@ -216,14 +224,16 @@ class Piece:
 
             for i in range(1, 8):
                 if right:
+                    empty = True
                     target_field = [y, x + i]
                     existant = self.check_if_field_exists(target_field)
                     if not existant:
                         right = False
-                    empty = self.check_if_field_empty(target_field, local_board)
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
                         moves.append([y, x + i])
-                    if not empty:
+                    if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
