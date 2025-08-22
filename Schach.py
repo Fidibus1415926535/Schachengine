@@ -165,16 +165,23 @@ class Piece:
             right = True
             down = True
             for i in range(1, 8):
-                if up:
-                    if y + i > 8:
+                if up:                    
+                    target_field = [y + i, x]
+                    existant = self.check_if_field_exists(target_field, local_board)
+                    if not existant:
                         up = False
-                    elif local_board[y + i] == "0": #Lehres Feld
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
                         moves.add([y + i, x])
-                    elif local_board[y + i][x][0] == self.name[0]: #Wenn die Figuren den gleichen Anfangsbuchstaben haben
-                        up = False  # dann haben sie halt die gleiche Farbe
-                    else:
-                        moves.add([y + i, x])#im letzen Fall schlägt man eine Figur
-                        up = False#und nun habe ich vergessen, dass die Figur so über den Rand ziehen wird glaube ich
+                    if not empty:
+                        colour = self.get_colour()
+                        if colour == "w":
+                            up = False
+                        if colour == "b": 
+                            up = False
+                            moves.add([y + i, x])
+
+
             for i in range(1, 8):
                 if left:
                     if x - i < 0:
@@ -205,8 +212,18 @@ class Piece:
                         moves.add([y, x + i])
                         up = False            
             return(moves)
-                
-    
+
+    def check_if_field_exists(self, field, local_board): 
+        if y + i > 8:
+            return False
+        else:
+            return True      
+    def check_if_field_empty(self, target_field, local_board):
+
+    def get_colour(self):
+
+
+
 class Dekomanager:
     def __init__(self):
         self.active_objects = []
