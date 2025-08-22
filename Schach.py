@@ -167,7 +167,7 @@ class Piece:
                         up = False  # dann haben sie halt die gleiche Farbe
                     else:
                         moves.add([y + i, x])#im letzen Fall schlägt man eine Figur
-                        up = False
+                        up = False#und nun habe ich vergessen, dass die Figur so über den Rand ziehen wird glaube ich
             for i in range(1, 8):
                 if left:
                     if board[x - i] == "0":
