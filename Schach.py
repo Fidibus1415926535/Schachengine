@@ -1,4 +1,3 @@
-#https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
 import pygame 
 pygame.init()
@@ -100,7 +99,6 @@ class Chess_Board:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
 
-                print(mouse_relative_pos)
                 moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
                 for i in moves:
                     possible_move_indicator = dekomanager.return_possible_move_indicator()
@@ -152,7 +150,6 @@ class Piece:
         position[0] = self.relative_pos[0]
         position[1] = self.relative_pos[1]
         position[0], position[1] = board_pos[0] + (position[0] * tile_size), board_pos[1] + (position[1] * tile_size) 
-        print(self.relative_pos)
         return position
     
     def get_possible_moves(self):
@@ -160,7 +157,6 @@ class Piece:
         local_board = board.return_board()
         x = int(self.relative_pos[1]) 
         y = int(self.relative_pos[0]) 
-        print(x, y)
 
         if self.name == "w_rook" or self.name == "b_rook":
             up = True
@@ -177,7 +173,7 @@ class Piece:
                     if empty and existant:
                         moves.append([y - i, x])
                     if not empty:
-                        colour = self.get_colour(target_field)
+                        colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
@@ -194,7 +190,7 @@ class Piece:
                     if empty and existant:
                         moves.append([y, x - i])
                     if not empty:
-                        colour = self.get_colour(target_field)
+                        colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
@@ -211,7 +207,7 @@ class Piece:
                     if empty and existant:
                         moves.append([y + i, x])
                     if not empty:
-                        colour = self.get_colour(target_field)
+                        colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
@@ -228,7 +224,7 @@ class Piece:
                     if empty and existant:
                         moves.append([y, x + i])
                     if not empty:
-                        colour = self.get_colour(target_field)
+                        colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
@@ -246,15 +242,16 @@ class Piece:
     def check_if_field_empty(self, field, board):
         y = field[0]
         x = field[1]
-        if board[y][x] == "0":
+        if board[y][x] == 0:
             return True
         else:
             return False
 
-    def get_colour(self, field):
+    def get_colour(self, field, local_board):
         y = field[0]
         x = field[1]
-        name = board[y][x].return_name()
+        local_board_copy = local_board
+        name = local_board_copy[y][x].return_name()
         return str(name[0])
 
 class Dekomanager:
