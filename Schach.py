@@ -1,5 +1,7 @@
 #https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
+#Status man darf nur nicht die Figuren anfassen, die noch nicht programmiert sind, ansonsten ist alles stabil aber halt falsch
+
 import pygame 
 pygame.init()
 
@@ -396,3 +398,4 @@ while running:
         running = False
 
 pygame.quit()       
+
