@@ -69,7 +69,7 @@ class Chess_Board:
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn"],
+                ["w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn"],
                 ["w_rook", "w_knight", "w_bishop", "w_queen", "w_king", "w_bishop", "w_knight", "w_rook"]
             ]
         elif colour == "black":
@@ -107,8 +107,18 @@ class Chess_Board:
     def get_moves(self, events, mouse_pos):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.toggle_indicator_visibility()
                 mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
+                actual_field = self.check_if_this_is_a_field(mouse_relative_pos)
+                if not actual_field:
+                    self.moves = []
+                    self.toggle_indicator_visibility()
+                    break
+                piece_in_field = self.check_if_there_is_a_piece_there(mouse_relative_pos)
+                if not piece_in_field:
+                    self.moves = []
+                    self.toggle_indicator_visibility()
+                    break
+                self.toggle_indicator_visibility()
                 self.moves = []
                 self.moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
 
@@ -147,7 +157,16 @@ class Chess_Board:
         elif self.indicator_visible:
             self.indicator_visible = False 
 
-
+    def check_if_this_is_a_field(self, relative_mouse_pos):
+        if relative_mouse_pos[0] <= 7 and relative_mouse_pos[0] >= 0:
+            if relative_mouse_pos[1] <= 7 and relative_mouse_pos[1] >= 0:
+                return True
+        return False
+    
+    def check_if_there_is_a_piece_there(self, mouse_relative_pos):
+        if self.board[mouse_relative_pos[1]][mouse_relative_pos[0]] == 0:
+            return False
+        return True
 
 class Piece:
     
@@ -265,8 +284,8 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append([y, x + i])
-
             return(moves)
+        
 
     def check_if_field_exists(self, field): 
         if field[0] <= 7 and field[0] >= 0:
