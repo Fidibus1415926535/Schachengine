@@ -1,7 +1,5 @@
 #https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ 
 
-#Status man darf nur nicht die Figuren anfassen, die noch nicht programmiert sind, ansonsten ist alles stabil aber halt falsch
-
 import pygame 
 pygame.init()
 
@@ -127,8 +125,8 @@ class Chess_Board:
     def show_moves(self):
         if self.indicator_visible:
             for i in range(len(self.moves)):
-                xposition = self.moves[i][0]
-                yposition = self.moves[i][1]
+                yposition = self.moves[i][0]
+                xposition = self.moves[i][1]
                 possible_move_indicator = dekomanager.return_possible_move_indicator()
                 xposition, yposition = self.calculate_actual_pos(xposition, yposition)
                 self.bounce_indicator()
@@ -203,8 +201,8 @@ class Piece:
     def get_possible_moves(self):
         moves = []
         local_board = board.return_board()
-        x = int(self.relative_pos[1]) 
-        y = int(self.relative_pos[0]) 
+        y = int(self.relative_pos[1]) 
+        x = int(self.relative_pos[0]) 
 
         if self.name == "w_rook" or self.name == "b_rook":
             up = True
@@ -229,6 +227,7 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append([y - i, x])
+                            print(moves, "up")
 
             for i in range(1, 8):
                 if left:
@@ -248,6 +247,7 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append([y, x - i])
+                            print(moves, "left")
 
             for i in range(1, 8):
                 if down: 
@@ -263,10 +263,11 @@ class Piece:
                     if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
-                            up = False
+                            down = False
                         if colour != self.colour: 
-                            up = False
+                            down = False
                             moves.append([y + i, x])
+                            print(moves, "down")
 
             for i in range(1, 8):
                 if right:
@@ -286,6 +287,7 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append([y, x + i])
+                            print(moves, "right")
             return(moves)
         
 
@@ -398,4 +400,3 @@ while running:
         running = False
 
 pygame.quit()       
-
