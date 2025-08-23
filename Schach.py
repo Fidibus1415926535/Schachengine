@@ -30,6 +30,11 @@ class Chess_Board:
 
         self.board_pos = [(screen_width - board_size * scale_factor) / 2, (screen_lenght - board_size * scale_factor) / 2] 
         
+        self.indicator_visible = False
+        self.moves = []
+
+        self.bounce = -15
+        self.bounce_factor = 0.2
 
     def finish_setup(self):
         self.board = self.create_piece_objects(self.board)
@@ -95,19 +100,32 @@ class Chess_Board:
                     board[y][x] = Piece(name, relative_pos)
         return board
 
-    def show_moves(self, events, mouse_pos):
+    def get_and_show_moves(self, events, mouse_pos):
+        self.get_moves(events, mouse_pos)
+        self.show_moves()
+
+    def get_moves(self, events, mouse_pos):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
+                self.toggle_indicator_visibility()
                 mouse_relative_pos = self.get_relative_mouse_pos(mouse_pos)
+                self.moves = []
+                self.moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
 
-                moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
-                for i in range(len(moves)):
-                    yposition = moves[i][0]
-                    xposition = moves[i][1]
-                    possible_move_indicator = dekomanager.return_possible_move_indicator()
-                    yposition, xposition = self.calculate_actual_pos(yposition, xposition)
-                    screen.blit(possible_move_indicator, (yposition, xposition))
+    def show_moves(self):
+        if self.indicator_visible:
+            for i in range(len(self.moves)):
+                xposition = self.moves[i][0]
+                yposition = self.moves[i][1]
+                possible_move_indicator = dekomanager.return_possible_move_indicator()
+                xposition, yposition = self.calculate_actual_pos(xposition, yposition)
+                self.bounce_indicator()
+                screen.blit(possible_move_indicator, (xposition , yposition + self.bounce))
 
+    def bounce_indicator(self):
+        self.bounce -= self.bounce_factor
+        if self.bounce < -40 or self.bounce > -10:
+            self.bounce_factor *= -1
 
     def get_relative_mouse_pos(self, mouse_pos_tuple):
         mouse_pos = []
@@ -119,10 +137,17 @@ class Chess_Board:
         mouse_pos[1] = int(mouse_pos[1] / (scale_factor * 16))
         return mouse_pos
  
-    def calculate_actual_pos(self, yposition, xposition):
-        yposition, xposition = self.board_pos[0] + (yposition * tile_size), self.board_pos[1] + (xposition * tile_size) 
-        return yposition, xposition
+    def calculate_actual_pos(self, xposition, yposition):
+        xposition, yposition = self.board_pos[0] + (xposition * tile_size), self.board_pos[1] + (yposition * tile_size) 
+        return xposition, yposition
     
+    def toggle_indicator_visibility(self):
+        if not self.indicator_visible:
+            self.indicator_visible = True
+        elif self.indicator_visible:
+            self.indicator_visible = False 
+
+
 
 class Piece:
     
@@ -343,7 +368,7 @@ while running:
 
     board.blit_board()
     board.blit_pieces()
-    board.show_moves(events, mouse_pos)
+    board.get_and_show_moves(events, mouse_pos)
 
 
     pygame.display.flip()
