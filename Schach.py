@@ -23,10 +23,12 @@ class Chess_Board:
 
     def __init__(self):
         self.colour = self.get_opponent_colour()
-        self.board = self.get_standartaufstellung(self.colour)
-       
+        self.board, self.bottom_colour = self.get_standartaufstellung(self.colour)#Sagt auch wer von unten nach oben spielt
+
         self.board_img = pygame.image.load("Board.png")
         self.board_img = pygame.transform.scale(self.board_img, (128 * scale_factor, 128 * scale_factor))
+
+        
 
         self.board_pos = [(screen_width - board_size * scale_factor) / 2, (screen_lenght - board_size * scale_factor) / 2] 
         
@@ -34,10 +36,13 @@ class Chess_Board:
         self.moves = []
 
         self.bounce = -15
-        self.bounce_factor = 0.2
+        self.bounce_factor = 1.2
 
     def finish_setup(self):
         self.board = self.create_piece_objects(self.board)
+
+    def return_bottom_colour(self):
+        return self.bottom_colour
 
     def return_pos(self):
         return self.board_pos
@@ -60,18 +65,20 @@ class Chess_Board:
 
     def get_standartaufstellung(self, colour):
         board = []
+        bottom_colour = "w"
 
         if colour == "white":
             board = [
                 ["b_rook", "b_knight", "b_bishop", "b_queen", "b_king", "b_bishop", "b_knight", "b_rook"],
-                ["b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn"],
+                ["b_pawn", 0, "b_pawn", "b_pawn", "b_pawn", "b_pawn", 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, "b_pawn", 0, 0, 0, 0, 0, "b_pawn"],
+                ["w_pawn", 0, 0, 0, 0, 0, "b_pawn", 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                ["w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn"],
+                [0, "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn"],
                 ["w_rook", "w_knight", "w_bishop", "w_queen", "w_king", "w_bishop", "w_knight", "w_rook"]
             ]
+            bottom_colour = "w"
         elif colour == "black":
             board = [
 
@@ -83,11 +90,9 @@ class Chess_Board:
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 ["b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn", "b_pawn"],
                 ["b_rook", "b_knight", "b_bishop", "b_king", "b_queen", "b_bishop", "b_knight", "b_rook"],
-
             ]
-        else:
-            print("fehler weil keine gültige Farbe eingegeben wurde. Gültig sind black oder white")
-        return board
+            bottom_colour = "b"
+        return board, bottom_colour
 
     def create_piece_objects(self, board):
         for y, row in enumerate(board):
@@ -114,22 +119,23 @@ class Chess_Board:
                     self.toggle_indicator_visibility()
                     break
                 piece_in_field = self.check_if_there_is_a_piece_there(mouse_relative_pos)
+                if piece_in_field:
+                    self.indicator_visible = True
                 if not piece_in_field:
                     self.moves = []
                     self.toggle_indicator_visibility()
                     break
-                self.toggle_indicator_visibility()
                 self.moves = []
                 self.moves = self.board[mouse_relative_pos[1]][mouse_relative_pos[0]].get_possible_moves()
 
     def show_moves(self):
         if self.indicator_visible:
+            self.bounce_indicator()
             for i in range(len(self.moves)):
                 yposition = self.moves[i][0]
                 xposition = self.moves[i][1]
                 possible_move_indicator = dekomanager.return_possible_move_indicator()
                 xposition, yposition = self.calculate_actual_pos(xposition, yposition)
-                self.bounce_indicator()
                 screen.blit(possible_move_indicator, (xposition , yposition + self.bounce))
 
     def bounce_indicator(self):
@@ -179,7 +185,13 @@ class Piece:
     
         self.relative_pos = relative_pos
         self.pos = self.calculate_actual_pos()
+        self.attribute = self.get_atribute_for_special_pieces()
+
     
+    def get_atribute_for_special_pieces(self):
+        return "das soll mal moved un unmoved werden für könig und turm usw"
+
+
     def blit_piece(self):
         screen.blit(self.piece_img, (self.pos[0], self.pos[1]))
 
@@ -219,14 +231,14 @@ class Piece:
                     if existant:
                         empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
-                        moves.append([y - i, x])
+                        moves.append(target_field)
                     if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
                             up = False
-                            moves.append([y - i, x])
+                            moves.append(target_field)
                             print(moves, "up")
 
             for i in range(1, 8):
@@ -239,14 +251,14 @@ class Piece:
                     if existant:    
                         empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
-                        moves.append([y, x - i])
+                        moves.append(target_field)
                     if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
                             up = False
-                            moves.append([y, x - i])
+                            moves.append(target_field)
                             print(moves, "left")
 
             for i in range(1, 8):
@@ -259,14 +271,14 @@ class Piece:
                     if existant:
                         empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
-                        moves.append([y + i, x])
+                        moves.append(target_field)
                     if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             down = False
                         if colour != self.colour: 
                             down = False
-                            moves.append([y + i, x])
+                            moves.append(target_field)
                             print(moves, "down")
 
             for i in range(1, 8):
@@ -279,17 +291,89 @@ class Piece:
                     if existant:    
                         empty = self.check_if_field_empty(target_field, local_board)
                     if empty and existant:
-                        moves.append([y, x + i])
+                        moves.append(target_field)
                     if not empty and existant:
                         colour = self.get_colour(target_field, local_board)
                         if colour == self.colour:
                             up = False
                         if colour != self.colour: 
                             up = False
-                            moves.append([y, x + i])
+                            moves.append(target_field)
                             print(moves, "right")
             return(moves)
         
+        if self.name == "w_pawn" or self.name == "b_pawn":
+            bottom_colour = board.return_bottom_colour()
+            if self.name[0] == bottom_colour:
+                if y == 6:
+                    for i in range (1, 3):
+                        empty = True
+                        target_field = [y - i, x]
+                        empty = self.check_if_field_empty(target_field, local_board)
+                        if not empty:
+                            break
+                        if empty:
+                            moves.append(target_field)
+
+                for i in ([y - 1, x - 1], [y - 1, x + 1]):
+                        empty = True
+                        target_field = i
+                        existant = self.check_if_field_exists(target_field)
+                        if existant:                          
+                            empty = self.check_if_field_empty(target_field, local_board)
+                            if empty:
+                                break                       
+                            colour = self.get_colour(target_field, local_board)
+                            if colour != self.colour: 
+                                moves.append(target_field)  
+
+                target_field = [y - 1, x]
+                empty = self.check_if_field_empty(target_field, local_board)
+                if empty:
+                    moves.append(target_field)
+                    
+            if self.name[0] != bottom_colour:
+                if y == 1:
+                    for i in range (1, 3):
+                        empty = True
+                        target_field = [y + i, x]
+                        empty = self.check_if_field_empty(target_field, local_board)
+                        if not empty:
+                            break
+                        if empty:
+                            moves.append(target_field)
+                for i in ([y + 1, x - 1], [y + 1, x + 1]):
+                        empty = True
+                        target_field = i
+                        existant = self.check_if_field_exists(target_field)
+                        if existant:                          
+                            empty = self.check_if_field_empty(target_field, local_board)
+                            if empty:
+                                break                       
+                            colour = self.get_colour(target_field, local_board)
+                            if colour != self.colour: 
+                                moves.append(target_field)  
+                                
+                target_field = [y + 1, x]
+                empty = self.check_if_field_empty(target_field, local_board)
+                if empty:
+                    moves.append(target_field)     
+
+            return(moves)
+
+                                                    
+
+
+
+
+
+
+
+
+
+
+
+
 
     def check_if_field_exists(self, field): 
         if field[0] <= 7 and field[0] >= 0:
