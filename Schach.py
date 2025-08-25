@@ -70,12 +70,12 @@ class Chess_Board:
         if colour == "white":
             board = [
                 ["b_rook", "b_knight", "b_bishop", "b_queen", "b_king", "b_bishop", "b_knight", "b_rook"],
-                ["b_pawn", 0, "b_pawn", "b_pawn", "b_pawn", "b_pawn", 0, 0],
+                ["b_pawn", 0, "b_pawn", 0, 0, "b_pawn", 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, "b_pawn", 0, 0, 0, 0, 0, "b_pawn"],
                 ["w_pawn", 0, 0, 0, 0, 0, "b_pawn", 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn", "w_pawn"],
+                [0, "w_pawn", "w_pawn", 0, 0, "w_pawn", "w_pawn", "w_pawn"],
                 ["w_rook", "w_knight", "w_bishop", "w_queen", "w_king", "w_bishop", "w_knight", "w_rook"]
             ]
             bottom_colour = "w"
@@ -239,7 +239,6 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append(target_field)
-                            print(moves, "up")
 
             for i in range(1, 8):
                 if left:
@@ -259,7 +258,6 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append(target_field)
-                            print(moves, "left")
 
             for i in range(1, 8):
                 if down: 
@@ -279,7 +277,6 @@ class Piece:
                         if colour != self.colour: 
                             down = False
                             moves.append(target_field)
-                            print(moves, "down")
 
             for i in range(1, 8):
                 if right:
@@ -299,7 +296,6 @@ class Piece:
                         if colour != self.colour: 
                             up = False
                             moves.append(target_field)
-                            print(moves, "right")
             return(moves)
         
         if self.name == "w_pawn" or self.name == "b_pawn":
@@ -361,18 +357,294 @@ class Piece:
 
             return(moves)
 
-                                                    
+        if self.name == "w_knight" or self.name == "b_knight":
+            target_fields = [
+                [y - 2, x - 1],
+                [y - 2, x + 1],
+                [y - 1 , x + 2], 
+                [y + 1 , x + 2],
+                [y + 2, x + 1], 
+                [y + 2, x - 1], 
+                [y + 1, x - 2], 
+                [y - 1, x - 2]
+            ]                
+            for target_field in target_fields:
+                existant = self.check_if_field_exists(target_field)
+                if existant:
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty:
+                        moves.append(target_field) 
+                    if not empty:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour != self.colour: 
+                            moves.append(target_field) 
+            return(moves)
+        
+        if self.name == "w_bishop" or self.name == "b_bishop":
+            top_left = True
+            top_right = True
+            bottom_left = True
+            bottom_right = True
+            for i in range(1, 8):
+                if top_left:  
+                    empty = True                  
+                    target_field = [y - i, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        top_left = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            top_left = False
+                        if colour != self.colour: 
+                            top_left = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if top_right:
+                    empty = True
+                    target_field = [y - i, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        top_right = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            top_right = False
+                        if colour != self.colour: 
+                            top_right = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if bottom_left: 
+                    empty = True  
+                    target_field = [y + i, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        bottom_left = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            bottom_left = False
+                        if colour != self.colour: 
+                            bottom_left = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if bottom_right:
+                    empty = True
+                    target_field = [y + i, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        bottom_right = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            bottom_right = False
+                        if colour != self.colour: 
+                            bottom_right = False
+                            moves.append(target_field)
+            return(moves)
+        
+        if self.name == "w_queen" or self.name == "b_queen":
+            up = True
+            left = True
+            right = True
+            down = True
+            top_left = True
+            top_right = True
+            bottom_left = True
+            bottom_right = True
+            for i in range(1, 8):
+                if up:  
+                    empty = True                  
+                    target_field = [y - i, x]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        up = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if left:
+                    empty = True
+                    target_field = [y, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        left = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if down: 
+                    empty = True  
+                    target_field = [y + i, x]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        down = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            down = False
+                        if colour != self.colour: 
+                            down = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if right:
+                    empty = True
+                    target_field = [y, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        right = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            up = False
+                        if colour != self.colour: 
+                            up = False
+                            moves.append(target_field)    
+            for i in range(1, 8):
+                if top_left:  
+                    empty = True                  
+                    target_field = [y - i, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        top_left = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            top_left = False
+                        if colour != self.colour: 
+                            top_left = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if top_right:
+                    empty = True
+                    target_field = [y - i, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        top_right = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            top_right = False
+                        if colour != self.colour: 
+                            top_right = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if bottom_left: 
+                    empty = True  
+                    target_field = [y + i, x - i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        bottom_left = False
+                    if existant:
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            bottom_left = False
+                        if colour != self.colour: 
+                            bottom_left = False
+                            moves.append(target_field)
 
+            for i in range(1, 8):
+                if bottom_right:
+                    empty = True
+                    target_field = [y + i, x + i]
+                    existant = self.check_if_field_exists(target_field)
+                    if not existant:
+                        bottom_right = False
+                    if existant:    
+                        empty = self.check_if_field_empty(target_field, local_board)
+                    if empty and existant:
+                        moves.append(target_field)
+                    if not empty and existant:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour == self.colour:
+                            bottom_right = False
+                        if colour != self.colour: 
+                            bottom_right = False
+                            moves.append(target_field)
+            return(moves)        
 
-
+        if self.name == "w_king" or self.name == "b_king":
+            target_fields = [
+                [y - 1, x],
+                [y - 1, x + 1],
+                [y, x + 1], 
+                [y + 1 , x + 1],
+                [y + 1, x], 
+                [y + 1, x - 1], 
+                [y, x - 1], 
+                [y - 1, x - 1]
+            ]                
+            for target_field in target_fields:
+                existant = self.check_if_field_exists(target_field)
+                if existant:
+                    empty = self.check_if_field_empty(target_field, local_board)
+                    if empty:
+                        moves.append(target_field) 
+                    if not empty:
+                        colour = self.get_colour(target_field, local_board)
+                        if colour != self.colour: 
+                            moves.append(target_field) 
+            return(moves)
 
 
     def check_if_field_exists(self, field): 
